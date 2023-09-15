@@ -1,4 +1,3 @@
-#{% raw %}
 name: CI/CD Terraform Plan Pipeline
 permissions:
   contents: read
@@ -12,6 +11,7 @@ on:
       - {{ cookiecutter.apply_branch }}
     types: [opened, synchronize, reopened] # should add drafts?
 
+# {% raw %}
 jobs:
   get-metadata:
     name: "Get Metadata"
@@ -31,4 +31,4 @@ jobs:
       - id: cloc
         name: Get Lines of Code
         uses: ./.github/actions/cloc-repository
-#{% endraw %}
+# {% endraw %}
