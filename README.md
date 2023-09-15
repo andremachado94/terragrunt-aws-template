@@ -1,3 +1,3 @@
 # Terragrunt template
 
-A terragrunt module to deploy resources to AWS 
+A terragrunt module to deploy resources to AWS

@@ -1,15 +1,32 @@
+---
 name: Get Metadata
-description: "Gets build metadata."
+description: Gets build metadata and Terraform and Terragrunt versions.
+outputs:
+    build_datetime:
+        value: ${{ steps.metadata.outputs.build_datetime }}
+        description: Build Datetime
+    build_timestamp:
+        value: ${{ steps.metadata.outputs.build_timestamp }}
+        description: Build Timestamp
+    build_epoch:
+        value: ${{ steps.metadata.outputs.build_epoch }}
+        description: Build Epoch
+    terraform_version:
+        value: ${{ steps.metadata.outputs.terraform_version }}
+        description: Terraform Version
+    terragrunt_version:
+        value: ${{ steps.metadata.outputs.terragrunt_version }}
+        description: Terragrunt Version
 runs:
-  using: "composite"
-  steps:
-    - name: Get Metadata
-      id: metadata
-      shell: bash
-      run: |
-        datetime=$(date -u +'%Y-%m-%dT%H:%M:%S%z')
-        echo "build_datetime=$datetime" >> $GITHUB_OUTPUT
-        echo "build_timestamp=$(date --date=$datetime -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-        echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
-        echo "terraform_version=$(cat .terraform-version | cut -f2 -d' ')" >> $GITHUB_OUTPUT
-        echo "terragrunt_version=$(cat .terragrunt-version | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+    using: composite
+    steps:
+      - name: Get Metadata
+        id: metadata
+        shell: bash
+        run: |
+            datetime=$(date -u +'%Y-%m-%dT%H:%M:%S%z')
+            echo "build_datetime=$datetime" >> $GITHUB_OUTPUT
+            echo "build_timestamp=$(date --date=$datetime -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+            echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
+            echo "terraform_version=$(tr -d '[:space:]' < .terraform-version)" >> $GITHUB_OUTPUT
+            echo "terragrunt_version=$(tr -d '[:space:]' < .terragrunt-version)" >> $GITHUB_OUTPUT

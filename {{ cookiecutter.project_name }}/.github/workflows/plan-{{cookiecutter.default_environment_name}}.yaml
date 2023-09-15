@@ -1,52 +1,77 @@
+---
 name: CI/CD Terraform Plan Pipeline
 permissions:
-  contents: read
-  security-events: write
-  id-token: write
-  actions: write
+    contents: read
+    security-events: write
+    id-token: write
+    actions: write
 
 on:
-  pull_request:
-    branches:
-      - { { cookiecutter.apply_branch } }
-    types: [ opened, synchronize, reopened ] # should add drafts?
+    pull_request:
+        branches:
+          - {{cookiecutter.apply_branch: null}: null}
+        types: [opened, synchronize, reopened] # should add drafts?
 
 # {% raw %}
+
 jobs:
-  get-metadata:
-    name: "Get Metadata"
-    runs-on: ubuntu-latest
-    outputs:
-      build_datetime: ${{ steps.metadata.outputs.build_datetime }}
-      build_timestamp: ${{ steps.metadata.outputs.build_timestamp }}
-      build_epoch: ${{ steps.metadata.outputs.build_epoch }}
-      terraform_version: ${{ steps.metadata.outputs.terraform_version }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - id: metadata
+    get-metadata:
         name: Get Metadata
-        uses: ./.github/actions/get-metadata
+        runs-on: ubuntu-latest
+        outputs:
+            build_datetime: ${{ steps.metadata.outputs.build_datetime }}
+            build_timestamp: ${{ steps.metadata.outputs.build_timestamp }}
+            build_epoch: ${{ steps.metadata.outputs.build_epoch }}
+            terraform_version: ${{ steps.metadata.outputs.terraform_version }}
+            terragrunt_version: ${{ steps.metadata.outputs.terragrunt_version }}
+        steps:
+          - uses: actions/checkout@v3
 
-      - id: cloc
-        name: Get Lines of Code
-        uses: ./.github/actions/cloc-repository
+          - id: metadata
+            name: Get Metadata
+            uses: ./.github/actions/get-metadata
 
-  formatting-checks:
-    needs: [ get-metadata ]
-    runs-on: ubuntu-latest
-    name: Formatting Checks
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+          - id: cloc
+            name: Get Lines of Code
+            uses: ./.github/actions/cloc-repository
 
-      - name: Check File Format
-        uses: ./.github/actions/check-file-format
+          - name: Log
+            shell: bash
+            run: |
+                echo "Epoch: ${{ steps.metadata.outputs.build_epoch }}"
+                echo "Terraform version: ${{ steps.metadata.outputs.terraform_version }}"
+                echo "Terragrunt version: ${{ steps.metadata.outputs.terragrunt_version }}"
 
-      - name: Check Markdown Format
-        uses: ./.github/actions/check-markdown-format
 
-      - name: Check Terraform Format
-        uses: ./.github/actions/check-terraform-format
+    setup:
+        needs: [get-metadata]
+        name: Setup Terraform and Terragrunt
+        runs-on: ubuntu-latest
+        steps:
+          - name: Setup
+            shell: bash
+            run: |
+                echo "Setting up Terraform and Terragrunt"
+                echo "Terraform version: ${{ needs.get-metadata.outputs.terraform_version }}"
+                echo "Terragrunt version: ${{ needs.get-metadata.outputs.terragrunt_version }}"
+
+          - name: Setup Terraform
+            uses: hashicorp/setup-terraform@v2.0.3
+            with:
+                terraform_version: ${{ needs.get-metadata.outputs.terraform_version }}
+                terraform_wrapper: false
+
+          - name: Setup Terragrunt
+            uses: autero1/action-terragrunt@v1.3.2
+            with:
+                terragrunt_version: ${{ needs.get-metadata.outputs.terragrunt_version }}
+
+    pre-commit:
+        needs: [setup]
+        runs-on: ubuntu-latest
+        name: Run Pre-Commit
+        steps:
+          - name: Run Pre-Commit
+            uses: ./.github/actions/run-pre-commit
+
 # {% endraw %}

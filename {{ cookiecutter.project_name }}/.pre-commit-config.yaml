@@ -1,0 +1,26 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.83.3
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+        args:
+          - --args=-json
+          - --args=-no-color
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+      - id: yamlfmt
+        args: [--mapping, '4', --sequence, '4', --offset, '2']
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: v0.15.0
+    hooks:
+      - id: terraform-docs-go
+        name: Github Actions terraform module docs
+        args: [-c, .terraform-docs.yaml, markdown, modules/github-actions]
