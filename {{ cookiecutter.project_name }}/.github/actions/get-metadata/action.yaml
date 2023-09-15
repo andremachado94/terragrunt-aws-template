@@ -11,4 +11,4 @@ runs:
         echo "build_datetime=$datetime" >> $GITHUB_OUTPUT
         echo "build_timestamp=$(date --date=$datetime -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
         echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
-        echo "terraform_version=$(grep terraform .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+        echo "terraform_version=$(cat .terraform-version | cut -f2 -d' ')" >> $GITHUB_OUTPUT
