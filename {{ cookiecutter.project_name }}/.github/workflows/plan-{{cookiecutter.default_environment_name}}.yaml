@@ -8,8 +8,8 @@ permissions:
 on:
   pull_request:
     branches:
-      - {{ cookiecutter.apply_branch }}
-    types: [opened, synchronize, reopened] # should add drafts?
+      - { { cookiecutter.apply_branch } }
+    types: [ opened, synchronize, reopened ] # should add drafts?
 
 # {% raw %}
 jobs:

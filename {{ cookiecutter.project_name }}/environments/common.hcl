@@ -1,4 +1,4 @@
 locals {
-  repository   = "{{ cookiecutter.repository_name }}"
-  project_name = "{{ cookiecutter.project_name }}"
+	repository   = "{{ cookiecutter.repository_name }}"
+	project_name = "{{ cookiecutter.project_name }}"
 }
