@@ -3,16 +3,11 @@ root = true
 [*]
 charset = utf-8
 end_of_line = lf
-indent_size = 2
-indent_style = space
+indent_size = 1
+indent_style = tab
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.py]
-indent_size = 4
-
-[{Dockerfile,Dockerfile.}*]
-indent_size = 4
-
-[*{.mk,Makefile}]
-indent_style = tab
+[*{.yaml,.yml}]
+indent_size = 2
+indent_style = space
