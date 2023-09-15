@@ -3,6 +3,10 @@ description: Count lines of code in this repository
 runs:
   using: "composite"
   steps:
+    - name: Grant execute permissions to the script
+      shell: bash
+      run: chmod +x ./.github/scripts/cloc-repository.sh
+
     - name: Count lines of code in this repository
       shell: bash
       run: |
