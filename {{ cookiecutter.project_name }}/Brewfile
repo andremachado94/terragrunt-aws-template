@@ -1,0 +1,10 @@
+brew "warrensbox/tap/tfswitch"
+brew "warrensbox/tap/tgswitch"
+
+brew "awscli"
+brew "aws-sso-util"
+brew "pre-commit"
+brew "go"
+brew "infracost"
+brew "conftest"
+brew "tfsec"

@@ -1,0 +1,10 @@
+name: CLOC
+description: Count lines of code in this repository
+runs:
+  using: "composite"
+  steps:
+    - name: Count lines of code in this repository
+      shell: bash
+      run: |
+        export FORMAT=default
+        ./.github/scripts/cloc-repository.sh

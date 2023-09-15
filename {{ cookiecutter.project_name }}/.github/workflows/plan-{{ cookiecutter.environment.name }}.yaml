@@ -1,0 +1,32 @@
+name: CI/CD Terraform Plan Pipeline
+permissions:
+  contents: read
+  security-events: write
+  id-token: write
+  actions: write
+
+on:
+  pull_request:
+    branches:
+      - {{ cookiecutter.apply_branch }}
+    types: [opened, synchronize, reopened] # should add drafts?
+
+jobs:
+  get-metadata:
+    name: "Get Metadata"
+    runs-on: ubuntu-latest
+    outputs:
+      build_datetime: ${{ steps.metadata.outputs.build_datetime }}
+      build_timestamp: ${{ steps.metadata.outputs.build_timestamp }}
+      build_epoch: ${{ steps.metadata.outputs.build_epoch }}
+      terraform_version: ${{ steps.metadata.outputs.terraform_version }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: metadata
+        name: Get Metadata
+        uses: ./.github/actions/get-metadata
+
+      - id: cloc
+        name: Get Lines of Code
+        uses: ./.github/actions/cloc-repository
