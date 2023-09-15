@@ -10,7 +10,7 @@ set +e
 #   $ ./check-file-format.sh
 #
 # Options:
-#   BRANCH_NAME=other-branch-than-main  # Branch to compare with, default is `origin/main`
+#   BRANCH_NAME=other-branch-than-main  # Branch to compare with, default is `origin/{{cookiecutter.apply_branch}}`
 #   ALL_FILES=true                      # Check all files, default is `false`
 #   VERBOSE=true                        # Show all the executed commands, default is `false`
 #
@@ -46,7 +46,7 @@ function main() {
   else
 
     # Check changed files only
-    files=$( (git diff --diff-filter=ACMRT --name-only "${BRANCH_NAME:-origin/main}"; git diff --name-only) | sort | uniq )
+    files=$( (git diff --diff-filter=ACMRT --name-only "${BRANCH_NAME:-origin/{{cookiecutter.apply_branch}}}"; git diff --name-only) | sort | uniq )
     if [ -n "$files" ]; then
       # shellcheck disable=SC2162
       while read file; do
@@ -56,6 +56,8 @@ function main() {
             ec \
               --exclude '.git/' \
               "$file"
+        # shellcheck disable=SC2181
+        # shellcheck disable=SC2015
         [ $? != 0 ] && exit_code=1 ||:
       done < <(echo "$files")
     fi
