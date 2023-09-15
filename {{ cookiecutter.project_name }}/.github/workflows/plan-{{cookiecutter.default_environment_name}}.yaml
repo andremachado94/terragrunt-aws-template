@@ -31,4 +31,22 @@ jobs:
       - id: cloc
         name: Get Lines of Code
         uses: ./.github/actions/cloc-repository
+
+  formatting-checks:
+    needs: [ get-metadata ]
+    runs-on: ubuntu-latest
+    name: Formatting Checks
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check File Format
+        uses: ./.github/actions/check-file-format
+
+      - name: Check Markdown Format
+        uses: ./.github/actions/check-markdown-format
+
+      - name: Check Terraform Format
+        uses: ./.github/actions/check-terraform-format
 # {% endraw %}
