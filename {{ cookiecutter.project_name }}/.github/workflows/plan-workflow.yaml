@@ -1,0 +1,124 @@
+---
+name: Terragrunt Plan Generic Github Actions Workflow
+
+on:
+    workflow_call:
+        inputs:
+            environment:
+                required: true
+                type: string
+            default_region:
+                required: true
+                type: string
+        secrets:
+            account_id:
+                required: true
+
+
+permissions:
+    contents: read
+    security-events: write
+    id-token: write
+    actions: write
+
+
+jobs:
+    get-metadata:
+        name: Get Metadata
+        runs-on: ubuntu-latest
+        outputs:
+            build_datetime: ${{ steps.metadata.outputs.build_datetime }}
+            build_timestamp: ${{ steps.metadata.outputs.build_timestamp }}
+            build_epoch: ${{ steps.metadata.outputs.build_epoch }}
+            terraform_version: ${{ steps.metadata.outputs.terraform_version }}
+            terragrunt_version: ${{ steps.metadata.outputs.terragrunt_version }}
+        steps:
+          - uses: actions/checkout@v3
+
+          - id: metadata
+            name: Get Metadata
+            uses: ./.github/actions/get-metadata
+
+          - id: cloc
+            name: Get Lines of Code
+            uses: ./.github/actions/cloc-repository
+
+          - name: Log
+            shell: bash
+            run: |
+                echo "Epoch: ${{ steps.metadata.outputs.build_epoch }}"
+                echo "Terraform version: ${{ steps.metadata.outputs.terraform_version }}"
+                echo "Terragrunt version: ${{ steps.metadata.outputs.terragrunt_version }}"
+
+
+    setup:
+        needs: [get-metadata]
+        name: Setup Terraform and Terragrunt
+        runs-on: ubuntu-latest
+        steps:
+          - name: Setup
+            shell: bash
+            run: |
+                echo "Setting up Terraform and Terragrunt"
+                echo "Terraform version: ${{ needs.get-metadata.outputs.terraform_version }}"
+                echo "Terragrunt version: ${{ needs.get-metadata.outputs.terragrunt_version }}"
+
+          - name: Setup Terraform
+            uses: hashicorp/setup-terraform@v2.0.3
+            with:
+                terraform_version: ${{ needs.get-metadata.outputs.terraform_version }}
+                terraform_wrapper: false
+
+          - name: Setup Terragrunt
+            uses: autero1/action-terragrunt@v1.3.2
+            with:
+                terragrunt_version: ${{ needs.get-metadata.outputs.terragrunt_version }}
+
+    pre-commit:
+        needs: [setup]
+        runs-on: ubuntu-latest
+        name: Run Pre-Commit
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+
+          - name: Run Pre-Commit
+            uses: ./.github/actions/pre-commit
+
+    set-aws-profile:
+        needs: [pre-commit]
+        runs-on: ubuntu-latest
+        name: Set AWS Profile
+        steps:
+          - name: Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+                role-to-assume: arn:aws:iam::${{ secrets.account_id }}:role/role-github-actions
+                aws-region: ${{ inputs.default_region }}
+
+          - name: Set AWS Profile
+            shell: bash
+            run: |
+                aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile profile-${{ inputs.environment }}
+                aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile profile-${{ inputs.environment }}
+                aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile profile-${{ inputs.environment }}
+
+    terragrunt-plan:
+        needs: [set-aws-profile]
+        runs-on: ubuntu-latest
+        name: Terragrunt Plan
+        steps:
+          - name: Terragrunt plan
+            id: plan
+            run: |
+                set +e
+                echo "PLAN-OUTPUT<<EOF" >> $GITHUB_ENV
+                terragrunt run-all plan --terragrunt-working-dir environments/${{ inputs.environment }} -no-color --terragrunt-non-interactive 2>&1 | tee -a apply-output.txt
+                EXIT_CODE="${PIPESTATUS[0]}"
+                tail -c 60000 apply-output.txt >> $GITHUB_ENV
+                echo "EOF" >> $GITHUB_ENV
+                exit $EXIT_CODE
+            env:
+                TF_IN_AUTOMATION: 1
+                TF_CLI_ARGS: -no-color
+      #

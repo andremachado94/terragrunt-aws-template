@@ -1,0 +1,14 @@
+---
+name: Run Pre-Commit
+description: Runs Pre-Commit
+
+runs:
+    using: composite
+    steps:
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+            go-version: ^1.16.1
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.0
