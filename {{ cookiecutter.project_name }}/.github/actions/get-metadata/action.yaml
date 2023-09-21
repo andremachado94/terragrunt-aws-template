@@ -1,6 +1,7 @@
 ---
 name: Get Metadata
 description: Gets build metadata and Terraform and Terragrunt versions.
+{% raw %}
 outputs:
     build_datetime:
         value: ${{ steps.metadata.outputs.build_datetime }}
@@ -30,3 +31,4 @@ runs:
             echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
             echo "terraform_version=$(tr -d '[:space:]' < .terraform-version)" >> $GITHUB_OUTPUT
             echo "terragrunt_version=$(tr -d '[:space:]' < .terragrunt-version)" >> $GITHUB_OUTPUT
+{% endraw %}
