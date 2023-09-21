@@ -1,6 +1,5 @@
 ---
 name: Terragrunt Plan Generic Github Actions Workflow
-
 on:
     workflow_call:
         inputs:
@@ -14,14 +13,12 @@ on:
             account_id:
                 required: true
 
-
 permissions:
     contents: read
     security-events: write
     id-token: write
     actions: write
-
-
+{% raw %}
 jobs:
     get-metadata:
         name: Get Metadata
@@ -121,4 +118,4 @@ jobs:
             env:
                 TF_IN_AUTOMATION: 1
                 TF_CLI_ARGS: -no-color
-      #
+{% endraw %}
