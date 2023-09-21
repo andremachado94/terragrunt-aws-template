@@ -9,14 +9,14 @@ permissions:
 on:
     pull_request:
         branches:
-          - {{cookiecutter.apply_branch: null}: null}
+          - {{cookiecutter.apply_branch}}
         types: [opened, synchronize, reopened]
 
 jobs:
     include:
         uses: ./.github/workflows/plan-workflow.yaml
         with:
-            default_region: {{cookiecutter.default_region: null}: null}
-            environment: {{cookiecutter.default_environment_name: null}: null}
+            default_region: {{cookiecutter.default_region}}
+            environment: {{cookiecutter.default_environment_name}}
         secrets:
             account_id: ${{ secrets.AWS_ACCOUNT_ID_{{cookiecutter.default_environment_name}} }}
