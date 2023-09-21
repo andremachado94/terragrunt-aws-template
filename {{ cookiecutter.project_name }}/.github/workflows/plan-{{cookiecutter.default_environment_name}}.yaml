@@ -19,4 +19,4 @@ jobs:
             default_region: {{cookiecutter.default_region}}
             environment: {{cookiecutter.default_environment_name}}
         secrets:
-            account_id: ${{ secrets.AWS_ACCOUNT_ID_{{cookiecutter.default_environment_name}} }}
+            account_id: {% raw %}${{ secrets.AWS_ACCOUNT_ID_{% endraw %}{{cookiecutter.default_environment_name}}{% raw %} }}{% endraw %}
