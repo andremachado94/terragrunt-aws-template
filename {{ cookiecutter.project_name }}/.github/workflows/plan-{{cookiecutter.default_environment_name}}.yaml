@@ -18,5 +18,6 @@ jobs:
         with:
             default_region: {{cookiecutter.default_region}}
             environment: {{cookiecutter.default_environment_name}}
+            gh_iam_role_prefix: {{cookiecutter.project_name}}
         secrets:
             account_id: {% raw %}${{ secrets.AWS_ACCOUNT_ID_{% endraw %}{{cookiecutter.default_environment_name}}{% raw %} }}{% endraw %}

@@ -14,4 +14,5 @@ include {
 inputs = {
 	prefix       = local.project_name
 	apply_branch = local.environment
+	repository   = "{{cookiecuter.repository_name}}"
 }

@@ -9,6 +9,9 @@ on:
             default_region:
                 required: true
                 type: string
+            gh_iam_role_prefix:
+                required: true
+                type: string
         secrets:
             account_id:
                 required: true
@@ -90,7 +93,7 @@ jobs:
           - name: Configure AWS Credentials
             uses: aws-actions/configure-aws-credentials@v2
             with:
-                role-to-assume: arn:aws:iam::${{ secrets.account_id }}:role/role-github-actions
+                role-to-assume: arn:aws:iam::${{ secrets.account_id }}:role/${{ inputs.gh_iam_role_prefix }}-gh-actions-plan
                 aws-region: ${{ inputs.default_region }}
 
           - name: Set AWS Profile
